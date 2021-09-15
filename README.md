@@ -1,24 +1,46 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Very basic (and incomplete) API for quickly making tickets for CodebaseHQ. 
 
-Things you may want to cover:
+:warning: There is already an "Add Multiple Tickets" feature that can handle CSV uploads.
 
-* Ruby version
+That said, if you want to dynamically set certain content (e.g. in the description), this is not a bad (quick and dirty) solution.
 
-* System dependencies
+You could make your tickets in YAML e.g.
 
-* Configuration
+```
+-
+  summary: My ticket1          
+  tags: Tag1 Tag2
+  estimated_time: 120
+  description: My description
+-
+  summary: My ticket2
+  tags: Tag1 Tag2
+  estimated_time: 180
+  description: My description
 
-* Database creation
+```
 
-* Database initialization
+Get your API username and password (and enable API access) from your [profile](https://codebasehq.com/settings/profile).
 
-* How to run the test suite
+#### Example usage
 
-* Services (job queues, cache servers, search engines, etc.)
+Run `bin/rails console`.
 
-* Deployment instructions
+Require the Ticket class, set you and your project details and the path to your ticket YAML data and import:
 
-* ...
+```
+username: 'my_username'
+password: 'my_password'
+project = 'my_project'
+ticket_path = 'tmp/my_tickets.yml'
+
+tickets = YAML.safe_load(File.open(Rails.root.join(ticket_path), 'r'))
+
+require "codebase_hq/api/ticket"
+
+ticket_api = CodebaseHq::Api::Ticket.new(username: username, password: password)
+tickets.each { |ticket| ticket_api.create(project: project, ticket: ticket) }
+```
+
